@@ -1,0 +1,4 @@
+anthropic>=0.40.0
+piper-tts>=1.6.0
+click>=8.1.0
+pytest>=8.0.0

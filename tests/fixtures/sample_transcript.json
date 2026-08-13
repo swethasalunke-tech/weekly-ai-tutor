@@ -1,0 +1,10 @@
+{
+  "session_id": "sess-001",
+  "title": "Fix race condition in worker queue",
+  "started_at": "2026-08-10T14:32:00Z",
+  "messages": [
+    {"role": "user", "content": "can you fix this race condition in my worker queue", "timestamp": "2026-08-10T14:32:00Z"},
+    {"role": "assistant", "content": "I added a lock around the queue pop to fix it.", "timestamp": "2026-08-10T14:32:05Z"},
+    {"role": "user", "content": "thanks, that works", "timestamp": "2026-08-10T14:33:00Z"}
+  ]
+}

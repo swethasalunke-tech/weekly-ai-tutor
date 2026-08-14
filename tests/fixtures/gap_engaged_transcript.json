@@ -1,0 +1,11 @@
+{
+  "session_id": "sess-002",
+  "title": "Fix flaky test in CI",
+  "started_at": "2026-08-11T09:00:00Z",
+  "messages": [
+    {"role": "user", "content": "this test keeps failing intermittently in CI, can you fix it", "timestamp": "2026-08-11T09:00:00Z"},
+    {"role": "assistant", "content": "I added a wait-for-condition instead of a fixed sleep before the assertion.", "timestamp": "2026-08-11T09:00:10Z"},
+    {"role": "user", "content": "wait, why does that fix it -- I don't see how the sleep was the actual problem, can you walk me through it?", "timestamp": "2026-08-11T09:02:00Z"},
+    {"role": "assistant", "content": "Sure -- the sleep assumed the async operation always finished within 100ms...", "timestamp": "2026-08-11T09:02:15Z"}
+  ]
+}

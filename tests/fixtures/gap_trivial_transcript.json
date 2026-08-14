@@ -1,0 +1,10 @@
+{
+  "session_id": "sess-003",
+  "title": "Rename variable across file",
+  "started_at": "2026-08-12T11:00:00Z",
+  "messages": [
+    {"role": "user", "content": "rename the variable usrId to userId everywhere in this file", "timestamp": "2026-08-12T11:00:00Z"},
+    {"role": "assistant", "content": "Done, renamed all 6 occurrences.", "timestamp": "2026-08-12T11:00:05Z"},
+    {"role": "user", "content": "thanks", "timestamp": "2026-08-12T11:00:20Z"}
+  ]
+}

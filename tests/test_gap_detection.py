@@ -66,6 +66,15 @@ def test_prompt_mentions_all_three_gates():
     assert "immediate_accept" in prompt
 
 
+def test_prompt_mentions_all_five_non_gate_signals():
+    prompt = build_gap_detection_prompt(_clean_gap_transcript())
+    assert "foundational" in prompt
+    assert "opted_out" in prompt
+    assert "boilerplate" in prompt
+    assert "already_understood" in prompt
+    assert "incident_context" in prompt
+
+
 # ---------------------------------------------------------------------------
 # GapCandidate
 # ---------------------------------------------------------------------------
@@ -119,6 +128,66 @@ def test_gap_candidate_requires_non_negative_index():
             immediate_accept=True,
             reasoning="r",
         )
+
+
+# ---------------------------------------------------------------------------
+# GapCandidate -- day 3: non-gate fields default False, is_non_gate_excluded,
+# should_flag, topic_key
+# ---------------------------------------------------------------------------
+
+
+def _gated_kwargs(**overrides):
+    base = dict(
+        session_id="s",
+        topic="  Git Rebase  ",
+        description="d",
+        user_message_index=0,
+        non_trivial_delegation=True,
+        no_engagement_signal=True,
+        immediate_accept=True,
+        reasoning="r",
+    )
+    base.update(overrides)
+    return base
+
+
+def test_gap_candidate_non_gate_fields_default_false():
+    c = GapCandidate(**_gated_kwargs())
+    assert c.foundational is False
+    assert c.opted_out is False
+    assert c.boilerplate is False
+    assert c.already_understood is False
+    assert c.incident_context is False
+
+
+def test_topic_key_normalizes_whitespace_and_case():
+    c = GapCandidate(**_gated_kwargs(topic="  Git Rebase  "))
+    assert c.topic_key == "git rebase"
+    assert c.topic == "  Git Rebase  "  # original preserved
+
+
+@pytest.mark.parametrize("field", ["opted_out", "boilerplate", "already_understood"])
+def test_is_non_gate_excluded_true_for_each_hard_exclusion(field):
+    c = GapCandidate(**_gated_kwargs(**{field: True}))
+    assert c.is_non_gate_excluded is True
+    assert c.should_flag is False
+
+
+def test_incident_context_alone_does_not_hard_exclude():
+    c = GapCandidate(**_gated_kwargs(incident_context=True))
+    assert c.is_non_gate_excluded is False
+    assert c.should_flag is True  # down-weighted in scoring.py, not excluded here
+
+
+def test_should_flag_false_when_gates_fail_even_with_no_exclusions():
+    c = GapCandidate(**_gated_kwargs(immediate_accept=False))
+    assert c.is_non_gate_excluded is False
+    assert c.should_flag is False
+
+
+def test_should_flag_true_when_gates_pass_and_no_exclusions():
+    c = GapCandidate(**_gated_kwargs())
+    assert c.should_flag is True
 
 
 # ---------------------------------------------------------------------------
@@ -254,6 +323,97 @@ def test_parse_candidate_index_out_of_range_raises():
     }
     with pytest.raises(GapDetectionResponseError, match="out of range"):
         parse_gap_candidates(raw, _clean_gap_transcript())
+
+
+def test_parse_candidate_omitted_optional_fields_default_false():
+    t = _clean_gap_transcript()
+    raw = {
+        "candidates": [
+            {
+                "topic": "race condition debugging",
+                "description": "d",
+                "user_message_index": 0,
+                "non_trivial_delegation": True,
+                "no_engagement_signal": True,
+                "immediate_accept": True,
+                "reasoning": "r",
+                # no foundational/opted_out/boilerplate/already_understood/incident_context
+            }
+        ]
+    }
+    c = parse_gap_candidates(raw, t)[0]
+    assert c.foundational is False
+    assert c.opted_out is False
+    assert c.boilerplate is False
+    assert c.already_understood is False
+    assert c.incident_context is False
+
+
+def test_parse_candidate_optional_fields_pass_through_when_present():
+    t = _clean_gap_transcript()
+    raw = {
+        "candidates": [
+            {
+                "topic": "git rebase",
+                "description": "d",
+                "user_message_index": 0,
+                "non_trivial_delegation": True,
+                "no_engagement_signal": True,
+                "immediate_accept": True,
+                "reasoning": "r",
+                "foundational": True,
+                "opted_out": False,
+                "boilerplate": False,
+                "already_understood": False,
+                "incident_context": True,
+            }
+        ]
+    }
+    c = parse_gap_candidates(raw, t)[0]
+    assert c.foundational is True
+    assert c.incident_context is True
+    assert c.should_flag is True  # incident_context alone doesn't exclude
+
+
+def test_parse_candidate_non_bool_optional_field_raises():
+    t = _clean_gap_transcript()
+    raw = {
+        "candidates": [
+            {
+                "topic": "t",
+                "description": "d",
+                "user_message_index": 0,
+                "non_trivial_delegation": True,
+                "no_engagement_signal": True,
+                "immediate_accept": True,
+                "reasoning": "r",
+                "foundational": "yes",  # should be bool
+            }
+        ]
+    }
+    with pytest.raises(GapDetectionResponseError, match="foundational must be a boolean"):
+        parse_gap_candidates(raw, t)
+
+
+def test_parse_candidate_opted_out_excludes_from_should_flag():
+    t = _clean_gap_transcript()
+    raw = {
+        "candidates": [
+            {
+                "topic": "t",
+                "description": "d",
+                "user_message_index": 0,
+                "non_trivial_delegation": True,
+                "no_engagement_signal": True,
+                "immediate_accept": True,
+                "reasoning": "r",
+                "opted_out": True,
+            }
+        ]
+    }
+    c = parse_gap_candidates(raw, t)[0]
+    assert c.passes_gates is True  # gates alone are still satisfied
+    assert c.should_flag is False  # but hard-excluded
 
 
 def test_parse_candidate_index_pointing_at_assistant_message_raises():

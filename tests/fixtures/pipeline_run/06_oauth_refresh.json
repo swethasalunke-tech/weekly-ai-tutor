@@ -1,0 +1,10 @@
+{
+  "session_id": "sess-107",
+  "title": "Fix OAuth token refresh flow",
+  "started_at": "2026-08-22T15:00:00Z",
+  "messages": [
+    {"role": "user", "content": "my app keeps logging users out, can you fix the oauth token refresh flow", "timestamp": "2026-08-22T15:00:00Z"},
+    {"role": "assistant", "content": "I updated the client to refresh the access token before it expires using the refresh token.", "timestamp": "2026-08-22T15:00:05Z"},
+    {"role": "user", "content": "perfect, shipped it", "timestamp": "2026-08-22T15:01:00Z"}
+  ]
+}

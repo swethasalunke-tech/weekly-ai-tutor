@@ -1,0 +1,10 @@
+{
+  "session_id": "sess-102",
+  "title": "Fix deadlock in job scheduler",
+  "started_at": "2026-08-18T10:00:00Z",
+  "messages": [
+    {"role": "user", "content": "my job scheduler is deadlocking under load, can you fix it", "timestamp": "2026-08-18T10:00:00Z"},
+    {"role": "assistant", "content": "I reordered the lock acquisition to a consistent order to fix it.", "timestamp": "2026-08-18T10:00:05Z"},
+    {"role": "user", "content": "great, deployed", "timestamp": "2026-08-18T10:01:00Z"}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "session_id": "sess-105",
+  "title": "Write a regex with a lookahead",
+  "started_at": "2026-08-21T13:00:00Z",
+  "messages": [
+    {"role": "user", "content": "write me a regex that matches a password with a lookahead for at least one digit", "timestamp": "2026-08-21T13:00:00Z"},
+    {"role": "assistant", "content": "Here is a pattern using a positive lookahead: ^(?=.*\\d).{8,}$", "timestamp": "2026-08-21T13:00:05Z"},
+    {"role": "user", "content": "works, thanks", "timestamp": "2026-08-21T13:01:00Z"}
+  ]
+}
